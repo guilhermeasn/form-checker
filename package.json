@@ -20,7 +20,7 @@
         "url": "https://github.com/guilhermeasn/form-checker/issues"
     },
     "homepage": "https://github.com/guilhermeasn/form-checker#readme",
-    "description": "The form-checker is a TypeScript/JavaSctipt form validation library that supports custom validation rules like required fields, length checks, pattern matching, and custom functions. It provides asynchronous validation and flexible error handling for robust form processing.",
+    "description": "The FormChecker (form-checker-ts) is a TypeScript/JavaSctipt form validation library that supports custom validation rules like required fields, length checks, pattern matching, and custom functions. It provides asynchronous validation and flexible error handling for robust form processing.",
     "keywords":[
         "Form",
         "Validation",
