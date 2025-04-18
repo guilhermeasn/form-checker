@@ -12,14 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formChecker = formChecker;
 function formChecker(schema, data) {
     return __awaiter(this, void 0, void 0, function* () {
+        const toString = (value) => typeof (value === null || value === void 0 ? void 0 : value.toString) === 'function' ? value.toString() : '';
         const isEmpty = (value) => value === undefined || value === null || value === '';
         const isInvalidNumber = (value) => isNaN(parseFloat(value));
-        const toString = (value) => typeof (value === null || value === void 0 ? void 0 : value.toString) === 'function' ? value.toString() : '';
         const result = {};
         const errors = {};
         const mensages = {};
         field: for (let key in schema) {
             let value = data[key];
+            result[key] = value;
             const rules = schema[key];
             const onError = (error) => {
                 var _a, _b;
