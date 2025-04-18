@@ -26,10 +26,8 @@ export type FormCheckerError = keyof Omit<FormCheckerRules<any>, 'transform' | '
 export type FormCheckerSchema<Fields extends string> = Record<Fields, FormCheckerRules<Fields>>;
 
 export type FormCheckerResult<Fields extends string> = {
-    isValid: true;
-    result: Partial<Record<Fields, any>>;
-} | {
-    isValid: false;
+    isValid: boolean;
     mensages: Partial<Record<Fields, string>>;
     errors: Partial<Record<Fields, FormCheckerError>>;
+    result: Partial<Record<Fields, any>>;
 };

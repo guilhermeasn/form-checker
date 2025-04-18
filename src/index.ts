@@ -5,6 +5,10 @@ export async function formChecker<Fields extends string>(
     data : Record<Fields, any>
 ) : Promise<FormCheckerResult<Fields>> {
 
+    const isEmpty = (value: any) : boolean => value === undefined || value === null || value === '';
+    const isInvalidNumber = (value: any) : boolean => isNaN(parseFloat(value));
+    const toString = (value: any) : string => typeof value?.toString === 'function' ? value.toString() : '';
+
     const result : Partial<Record<Fields, any>> = {};
     const errors : Partial<Record<Fields, FormCheckerError>> = {};
     const mensages: Partial<Record<Fields, string>> = {};
@@ -21,11 +25,11 @@ export async function formChecker<Fields extends string>(
             return true;
         }
 
-        if(rules.required && !value && onError('required')) continue;
-        if(rules.min && parseFloat(value) < rules.min && onError('min')) continue;
-        if(rules.max && parseFloat(value) > rules.max && onError('max')) continue;
-        if(rules.minLength && value.length < rules.minLength && onError('minLength')) continue;
-        if(rules.maxLength && value.length > rules.maxLength && onError('maxLength')) continue;
+        if(rules.required && isEmpty(value) && onError('required')) continue;
+        if(rules.min && (isInvalidNumber(value) || parseFloat(value) < rules.min) && onError('min')) continue;
+        if(rules.max && (isInvalidNumber(value) || parseFloat(value) > rules.max) && onError('max')) continue;
+        if(rules.minLength && toString(value).trim().length < rules.minLength && onError('minLength')) continue;
+        if(rules.maxLength && toString(value).trim().length > rules.maxLength && onError('maxLength')) continue;
         if(rules.equal && data[rules.equal] !== value && onError('equal')) continue;
         if(rules.test && !(await rules.test(value)) && onError('test')) continue;
 
@@ -36,13 +40,14 @@ export async function formChecker<Fields extends string>(
         }
 
         if(rules.transform) value = await rules.transform(value);
-        result[key] = value || rules.defaultIfEmpty;
+        result[key] = isEmpty(value) ? rules.defaultIfEmpty : value;
 
     }
 
-    return Object.keys(errors).length === 0
-        ? { isValid: true, result }
-        : { isValid: false, mensages, errors };
+    return {
+        isValid: Object.keys(errors).length === 0,
+        mensages, errors, result
+    }
 
 }
 
