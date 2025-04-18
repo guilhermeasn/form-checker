@@ -3,7 +3,7 @@ if (yarn test); then
     yarn build:sh
     cd ./dist
     npm pack --pack-destination ..\\packs\\
-    npm publish
+    npm publish --access=public
 
 else
 

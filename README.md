@@ -17,13 +17,13 @@ A TypeScript library for flexible and customizable form validation with support 
 ## Installation
 
 ```bash
-npm install form-checker
+npm install form-checker-ts
 ```
 
 ## Example Usage
 
 ```ts
-import { formChecker, type FormCheckerSchema } from 'form-checker';
+import { formChecker, type FormCheckerSchema } from 'form-checker-ts';
 
 type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
 

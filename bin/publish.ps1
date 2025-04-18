@@ -5,7 +5,7 @@ if($LASTEXITCODE -eq 0) {
     yarn build:ps
     Set-Location ./dist
     npm pack --pack-destination ..\\packs\\
-    npm publish
+    npm publish --access=public
 
 } else {
 
