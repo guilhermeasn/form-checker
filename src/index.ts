@@ -5,9 +5,9 @@ export async function formChecker<Fields extends string>(
     data : Record<Fields, any>
 ) : Promise<FormCheckerResult<Fields>> {
 
+    const toString = (value: any) : string => typeof value?.toString === 'function' ? value.toString() : '';
     const isEmpty = (value: any) : boolean => value === undefined || value === null || value === '';
     const isInvalidNumber = (value: any) : boolean => isNaN(parseFloat(value));
-    const toString = (value: any) : string => typeof value?.toString === 'function' ? value.toString() : '';
 
     const result : Partial<Record<Fields, any>> = {};
     const errors : Partial<Record<Fields, FormCheckerError>> = {};
