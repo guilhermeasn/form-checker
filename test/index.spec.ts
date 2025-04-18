@@ -113,7 +113,6 @@ describe('formChecker', () => {
         };
 
         formChecker(schema, data).then(result => {
-            console.log(result);
             expect(result.isValid).toBe(true);
         });
 
