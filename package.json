@@ -1,0 +1,46 @@
+{
+    "name": "form-checker-ts",
+    "version": "0.1.1",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "scripts": {
+        "test": "jest",
+        "start": "tsx ./src/index.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/guilhermeasn/form-checker.git"
+    },
+    "author": "Guilherme Augusto Silva Neves <guilhermeasn@yahoo.com.br>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/guilhermeasn/form-checker/issues"
+    },
+    "homepage": "https://github.com/guilhermeasn/form-checker#readme",
+    "description": "The FormChecker (form-checker-ts) is a TypeScript/JavaSctipt form validation library that supports custom validation rules like required fields, length checks, pattern matching, and custom functions. It provides asynchronous validation and flexible error handling for robust form processing.",
+    "keywords": [
+        "Form",
+        "Validation",
+        "Form Checker",
+        "Form validation",
+        "Custom rules",
+        "Asynchronous validation",
+        "Error handling",
+        "Field validation",
+        "Validation schema",
+        "Input validation",
+        "Flexible form checker"
+    ],
+    "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "@types/node": "^22.14.1",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.3.2",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "form-checker-ts": "^0.1.1"
+    }
+}
