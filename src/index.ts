@@ -16,6 +16,7 @@ export async function formChecker<Fields extends string>(
     field: for(let key in schema) {
                 
         let value : any = data[key];
+        result[key] = value;
 
         const rules : FormCheckerRules<Fields> = schema[key];
 
