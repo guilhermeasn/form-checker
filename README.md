@@ -16,8 +16,16 @@ A TypeScript library for flexible and customizable form validation with support 
 
 ## Installation
 
+With NPM:
+
 ```bash
 npm install form-checker-ts
+```
+
+Or with Yarn:
+
+```bash
+yarn add form-checker-ts
 ```
 
 ## Example Usage
