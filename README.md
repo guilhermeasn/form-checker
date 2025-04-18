@@ -1,8 +1,8 @@
 # FormChecker
 
 [![tests](https://github.com/guilhermeasn/form-checker/actions/workflows/test.yml/badge.svg)](https://github.com/guilhermeasn/form-checker/actions/workflows/test.yml)
-[![npm](https://img.shields.io/npm/v/form-checker.svg)](https://www.npmjs.com/package/form-checker/v/latest)
-[![downloads](https://img.shields.io/npm/dt/form-checker)](https://www.npmjs.com/package/form-checker/)
+[![npm](https://img.shields.io/npm/v/form-checker-ts.svg)](https://www.npmjs.com/package/form-checker-ts/v/latest)
+[![downloads](https://img.shields.io/npm/dt/form-checker-ts)](https://www.npmjs.com/package/form-checker-ts/)
 
 A TypeScript library for flexible and customizable form validation with support for synchronous and asynchronous rules.
 
