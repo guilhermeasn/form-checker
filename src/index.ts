@@ -1,41 +1,46 @@
-// REVISAR
-
 import type {
     FormCheckerData,
+    FormCheckerDefaultMessages,
     FormCheckerError,
+    FormCheckerInferResultType,
     FormCheckerLanguages,
     FormCheckerResult,
     FormCheckerRules,
     FormCheckerSchema,
-    FormCheckerType,
-    InferResultType
+    FormFieldValue
 } from "./types";
 
 import { defaultMessages } from "./errors";
 
-export async function formChecker<Fields extends string, Data extends FormCheckerData<Fields>, Schema extends FormCheckerSchema<Fields>>(
-    schema : FormCheckerSchema<Fields>,
+export async function formChecker<
+    Fields extends string,
+    Schema extends FormCheckerSchema<Fields>,
+    Data extends FormCheckerData<Schema>
+>(
+    schema :Schema,
     data : Data,
-    language : FormCheckerLanguages | Record<FormCheckerError, string> = 'en'
-) : Promise<FormCheckerResult<Fields, Data, Schema>> {
+    language : FormCheckerDefaultMessages | FormCheckerLanguages = 'en'
+) : Promise<FormCheckerResult<Fields, Schema, Data>> {
 
-    const isEmpty = (value: FormCheckerType) : boolean => value === undefined || value === null || value.toString().trim() === '';
+    const isEmpty = (value: FormFieldValue) : boolean => value === undefined || value === null || value.toString().trim() === '';
     const isInvalidNumber = (value: string) : boolean => isNaN(parseFloat(value));
+    const isNotEqual = <T>(a: T, b: unknown): b is T => a !== b;
 
     const getDefaultMessages = (error : FormCheckerError) : string => {
         if(typeof language === 'string') return defaultMessages[language][error];
         return language[error];
     }
 
-    const result = {} as InferResultType<Fields, Schema>;
-    const errors : Partial<Partial<Record<keyof Data, FormCheckerError>>> = {};
-    const messages: Partial<Record<keyof Data, string>> = {};
+    const result = {} as FormCheckerInferResultType<Fields, Schema, Data>;
+    const errors : Partial<Record<keyof Schema, FormCheckerError>> = {};
+    const messages: Partial<Record<keyof Schema, string>> = {};
 
     loop: for(let field in schema) {
 
         const rules = schema[field];
         let value = data[field];
 
+        // trimmed
         if(typeof value === 'string' && !rules.untrimmed) {
             value = value.trim() as Data[Extract<Fields, string>];
         }
@@ -46,41 +51,67 @@ export async function formChecker<Fields extends string, Data extends FormChecke
             return true;
         }
 
+        // required
         if(rules.required && isEmpty(value)) {
 
-            if(typeof rules.required === 'object') (result as any)[field] = (
-                'default' in rules.required
-                    ? rules.required.default
-                    : await rules.required.defaultCallback(value)
-                );
+            if(typeof rules.required === 'object') {
 
-            else onError('required');
+                result[field] = (
+                    typeof rules.required.default === 'function'
+                        ? await rules.required.default()
+                        : rules.required.default
+                ) as FormCheckerInferResultType<Fields, Schema, Data>[typeof field];
+
+            } else onError('required');
 
             continue loop;
 
         }
-        
-        if(rules.checked && !value && onError('checked')) continue loop;
-        if(rules.equal && data[rules.equal] !== value && onError('equal')) continue loop;
 
+        //onBefore
+        if(rules.onBefore) {
+            const funcs = Array.isArray(rules.onBefore) ? rules.onBefore : [ rules.onBefore ];
+            for(let f of funcs) value = await f(value) as Data[Extract<Fields, string>];
+        }
+        
+        // checked
+        if(rules.checked && !value && onError('checked')) continue loop;
+
+        // equal
+        if(rules.equal && isNotEqual(data[rules.equal], value) && onError('equal')) continue loop;
+
+        // min, max, minLength, maxLength, regexp
         if(typeof value === 'string' || typeof value === 'number') {
 
             const valueString = value.toString().trim();
 
+            // min, max, minLength, maxLength
             if(rules.min && (isInvalidNumber(valueString) || parseFloat(valueString) < rules.min) && onError('min')) continue loop;
             if(rules.max && (isInvalidNumber(valueString) || parseFloat(valueString) > rules.max) && onError('max')) continue loop;
             if(rules.minLength && valueString.length < rules.minLength && onError('minLength')) continue loop;
             if(rules.maxLength && valueString.length > rules.maxLength && onError('maxLength')) continue loop;
 
-            const regs : RegExp[] = Array.isArray(rules.regexp) ? rules.regexp : (rules.regexp ? [rules.regexp] : []);
-            for(let r of regs) if(!r.test(valueString) && onError('regexp')) continue loop;
+            // regexp
+            if(rules.regexp) {
+                const regs : RegExp[] = Array.isArray(rules.regexp) ? rules.regexp : [ rules.regexp ];
+                for(let r of regs) if(!r.test(valueString) && onError('regexp')) continue loop;
+            }
 
         }
         
-        const tests = Array.isArray(rules.test) ? rules.test : (rules.test ? [rules.test] : []);
-        for(let t of tests) if(!(await t(value)) && onError('test')) continue loop;
+        // test
+        if(rules.test) {
+            const tests = Array.isArray(rules.test) ? rules.test : [ rules.test ];
+            for(let t of tests) if(!(await t(value)) && onError('test')) continue loop;
+        }
 
-        if(rules.transform) value = await rules.transform(value) as Data[Extract<Fields, string>];
+        //onAfter
+        if(rules.onAfter) {
+            const funcs = Array.isArray(rules.onAfter) ? rules.onAfter : [ rules.onAfter ];
+            for(let f of funcs) value = await f(value) as Data[Extract<Fields, string>];
+        }
+
+        if(rules.output) value = await rules.output(value) as Data[Extract<Fields, string>];
 
         (result as any)[field] = value;
 
@@ -93,5 +124,16 @@ export async function formChecker<Fields extends string, Data extends FormChecke
 
 }
 
-export type { FormCheckerResult, FormCheckerRules, FormCheckerSchema };
+export type {
+    FormCheckerData,
+    FormCheckerDefaultMessages,
+    FormCheckerError,
+    FormCheckerInferResultType,
+    FormCheckerLanguages,
+    FormCheckerResult,
+    FormCheckerRules,
+    FormCheckerSchema,
+    FormFieldValue
+};
+
 export default formChecker;

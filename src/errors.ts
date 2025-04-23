@@ -1,9 +1,9 @@
 import type {
-    FormCheckerError,
+    FormCheckerDefaultMessages,
     FormCheckerLanguages
 } from "./types";
 
-export const defaultMessages: Record<FormCheckerLanguages, Record<FormCheckerError, string>> = {
+export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMessages> = {
 
     en: {
         required: 'This field is required.',

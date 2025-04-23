@@ -14,6 +14,13 @@ export type FormCheckerLanguages = (
 );
 
 /**
+ * Set of standard validation error messages
+ */
+export type FormCheckerDefaultMessages = (
+    Record<FormCheckerError, string>
+);
+
+/**
  * Supported types for data input and output
  */
 export type FormFieldValue = (
@@ -48,6 +55,12 @@ export type FormCheckerRules<
 > = {
 
     /**
+     * By default the data is trimmed, if you don't want it,
+     * enable untrimmed
+     */
+    untrimmed ?: boolean;
+
+    /**
      * Validates whether the field is mandatory.
      * If it is blank, you can enter a default output value.
      */
@@ -55,6 +68,25 @@ export type FormCheckerRules<
         | boolean
         | { default: Output | (() => (Promise<Output> | Output)) }
     );
+
+    /**
+     * Changes to data before validations
+     */
+    onBefore ?: (
+        | ((value : Input) => Promise<Input> | Input)
+        | Array<(value : Input) => Promise<Input> | Input>
+    );
+
+    /**
+     * Validates whether a field is true
+     */
+    checked ?: boolean;
+
+    /**
+     * Validates whether the field data is exactly
+     * the same as another field
+     */
+    equal ?: Fields;
 
     /**
      * Validates if it is a number equal to or greater
@@ -79,28 +111,11 @@ export type FormCheckerRules<
      * equal to or less than the amount informed
      */
     maxLength ?: number;
-
-    /**
-     * Validates whether the field data is exactly
-     * the same as another field
-     */
-    equal ?: Fields;
     
     /**
      * Validates one or more regular expressions
      */
     regexp ?: RegExp | RegExp[];
-
-    /**
-     * By default the data is trimmed, if you don't want it,
-     * enable untrimmed
-     */
-    untrimmed ?: boolean;
-    
-    /**
-     * Validates whether a field is true
-     */
-    checked ?: boolean;
 
     /**
      * Validates one or more synchronous and asynchronous
@@ -109,14 +124,6 @@ export type FormCheckerRules<
     test ?: (
         | ((value : Input) => Promise<boolean> | boolean)
         | Array<(value : Input) => Promise<boolean> | boolean>
-    );
-
-    /**
-     * Changes to data before validations
-     */
-    onBefore ?: (
-        | ((value : Input) => Promise<Input> | Input)
-        | Array<(value : Input) => Promise<Input> | Input>
     );
 
     /**
@@ -155,13 +162,13 @@ export type FormCheckerError = (
 /**
  * Infer output data type
  */
-export type InferResultType<
+export type FormCheckerInferResultType<
     Fields extends string, 
     Schema extends FormCheckerSchema<Fields>,
     Data extends FormCheckerData<Schema>
 > = {
     [K in keyof Schema]: Schema[K] extends FormCheckerRules<Fields, Data[K], infer Output>
-        ? Output
+        ? Output | null
         : never;
 };
 
@@ -172,5 +179,5 @@ export type FormCheckerResult<Fields extends string, Schema extends FormCheckerS
     isValid: boolean;
     messages: Partial<Record<Fields, string>>;
     errors: Partial<Record<Fields, FormCheckerError>>;   
-    result: InferResultType<Fields, Schema, Data>;
+    result: FormCheckerInferResultType<Fields, Schema, Data>;
 }
