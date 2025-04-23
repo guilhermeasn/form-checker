@@ -2,27 +2,25 @@ import type {
     FormCheckerData,
     FormCheckerDefaultMessages,
     FormCheckerError,
-    FormCheckerInferResultType,
     FormCheckerLanguages,
     FormCheckerResult,
     FormCheckerRules,
     FormCheckerSchema,
-    FormFieldValue
+    FormCheckerValue
 } from "./types";
 
 import { defaultMessages } from "./errors";
 
 export async function formChecker<
-    Fields extends string,
-    Schema extends FormCheckerSchema<Fields>,
-    Data extends FormCheckerData<Schema>
+    Data extends FormCheckerData,
+    Schema extends FormCheckerSchema<Data>
 >(
     schema :Schema,
     data : Data,
     language : FormCheckerDefaultMessages | FormCheckerLanguages = 'en'
-) : Promise<FormCheckerResult<Fields, Schema, Data>> {
+) : Promise<FormCheckerResult<Data>> {
 
-    const isEmpty = (value: FormFieldValue) : boolean => value === undefined || value === null || value.toString().trim() === '';
+    const isEmpty = (value: FormCheckerValue) : boolean => value === undefined || value === null || value.toString().trim() === '';
     const isInvalidNumber = (value: string) : boolean => isNaN(parseFloat(value));
     const isNotEqual = <T>(a: T, b: unknown): b is T => a !== b;
 
@@ -31,7 +29,7 @@ export async function formChecker<
         return language[error];
     }
 
-    const result : Partial<Record<keyof Schema, unknown>> = {};
+    const result : Data = {...data};
     const errors : Partial<Record<keyof Schema, FormCheckerError>> = {};
     const messages: Partial<Record<keyof Schema, string>> = {};
 
@@ -42,7 +40,7 @@ export async function formChecker<
 
         // trimmed
         if(typeof value === 'string' && !rules.untrimmed) {
-            value = value.trim() as Data[Extract<Fields, string>];
+            value = value.trim() as Data[Extract<keyof Schema, string>];
         }
 
         const onError = (error : FormCheckerError) : true => {
@@ -56,20 +54,46 @@ export async function formChecker<
 
             if(typeof rules.required === 'object') {
 
-                result[field] = typeof rules.required.default === 'function'
-                    ? await rules.required.default()
-                    : rules.required.default;
+                if('default' in rules.required) {
+                    result[field] = (typeof rules.required.default === 'function'
+                        ? await rules.required.default()
+                        : rules.required.default) as Data[Extract<keyof Schema, string>];
+                    continue loop;
+                } else {
 
-            } else onError('required');
+                    if(rules.required.ifFilled) {
+                        const fields = Array.isArray(rules.required.ifFilled) ? rules.required.ifFilled : [ rules.required.ifFilled ];
+                        for (const field of fields) {
+                            if (!isEmpty(data[field])) {
+                                onError('required');
+                                continue loop;
+                            }
+                        }
+                    }
 
-            continue loop;
+                    if(rules.required.ifNotFilled) {
+                        const fields = Array.isArray(rules.required.ifNotFilled) ? rules.required.ifNotFilled : [ rules.required.ifNotFilled ];
+                        for (const field of fields) {
+                            if(isEmpty(data[field])) {
+                                onError('required');
+                                continue loop;
+                            }
+                        }
+                    }
+
+                }
+
+            } else {
+                onError('required');
+                continue loop;
+            }
 
         }
 
         //onBefore
         if(rules.onBefore) {
             const funcs = Array.isArray(rules.onBefore) ? rules.onBefore : [ rules.onBefore ];
-            for(let f of funcs) value = await f(value) as Data[Extract<Fields, string>];
+            for(let f of funcs) value = await f(value) as Data[Extract<keyof Schema, string>];
         }
         
         // checked
@@ -106,18 +130,17 @@ export async function formChecker<
         //onAfter
         if(rules.onAfter) {
             const funcs = Array.isArray(rules.onAfter) ? rules.onAfter : [ rules.onAfter ];
-            for(let f of funcs) value = await f(value) as Data[Extract<Fields, string>];
+            for(let f of funcs) value = await f(value) as Data[Extract<keyof Schema, string>];
         }
 
         // output
-        result[field] = rules.output ? await rules.output(value) : value;
+        result[field] = value;
 
     }
 
     return {
         isValid: Object.keys(errors).length === 0,
-        messages, errors,
-        result: result as FormCheckerInferResultType<Fields, Schema, Data>
+        messages, errors, result
     }
 
 }
@@ -126,12 +149,11 @@ export type {
     FormCheckerData,
     FormCheckerDefaultMessages,
     FormCheckerError,
-    FormCheckerInferResultType,
     FormCheckerLanguages,
     FormCheckerResult,
     FormCheckerRules,
     FormCheckerSchema,
-    FormFieldValue
+    FormCheckerValue
 };
 
 export default formChecker;

@@ -23,7 +23,7 @@ export type FormCheckerDefaultMessages = (
 /**
  * Supported types for data input and output
  */
-export type FormFieldValue = (
+export type FormCheckerValue = (
     | string 
     | number 
     | boolean 
@@ -32,26 +32,29 @@ export type FormFieldValue = (
 );
 
 /**
- * Data validation and transformation scheme
+ * Form input data
  */
-export type FormCheckerSchema<Fields extends string = string> = (
-    Record<Fields, FormCheckerRules<Fields>>
+export type FormCheckerData = (
+    Record<string, FormCheckerValue>
+);
+
+export type FormCheckerFields<Data extends FormCheckerData> = (
+    Extract<keyof Data, string>
 );
 
 /**
- * Form input data
+ * Data validation and transformation scheme
  */
-export type FormCheckerData<Schema extends FormCheckerSchema> = (
-    Record<keyof Schema, FormFieldValue>
-);
+export type FormCheckerSchema<Data extends FormCheckerData> = {
+    [K in keyof Data]: FormCheckerRules<FormCheckerFields<Data>, Data[K]>;
+};
 
 /**
  * Validation rules for a form field
  */
 export type FormCheckerRules<
     Fields extends string,
-    Input extends FormFieldValue = FormFieldValue,
-    Output extends FormFieldValue = Input,
+    Type extends FormCheckerValue
 > = {
 
     /**
@@ -66,15 +69,16 @@ export type FormCheckerRules<
      */
     required : (
         | boolean
-        | { default: Output | (() => (Promise<Output> | Output)) }
+        | { default: Type | (() => (Promise<Type> | Type)) }
+        | { ifFilled ?: Fields | Fields[], ifNotFilled ?: Fields | Fields[] }
     );
 
     /**
      * Changes to data before validations
      */
     onBefore ?: (
-        | ((value : Input) => Promise<Input> | Input)
-        | Array<(value : Input) => Promise<Input> | Input>
+        | ((value : Type) => Promise<Type> | Type)
+        | Array<(value : Type) => Promise<Type> | Type>
     );
 
     /**
@@ -122,22 +126,17 @@ export type FormCheckerRules<
      * custom tests
      */
     test ?: (
-        | ((value : Input) => Promise<boolean> | boolean)
-        | Array<(value : Input) => Promise<boolean> | boolean>
+        | ((value : Type) => Promise<boolean> | boolean)
+        | Array<(value : Type) => Promise<boolean> | boolean>
     );
 
     /**
      * Changes to data after validations
      */
     onAfter ?: (
-        | ((value : Input) => Promise<Input> | Input)
-        | Array<(value : Input) => Promise<Input> | Input>
+        | ((value : Type) => Promise<Type> | Type)
+        | Array<(value : Type) => Promise<Type> | Type>
     );
-    
-    /**
-     * Allows modification and type change in the final data result
-     */
-    output ?: (value : Input) => Promise<Output> | Output;
 
     /**
      * Customization of validation error messages
@@ -150,7 +149,7 @@ export type FormCheckerRules<
  * Validation error message customization options
  */
 export type FormCheckerError = (
-    keyof Omit<FormCheckerRules<string>, (
+    keyof Omit<FormCheckerRules<string, FormCheckerValue>, (
         | 'output' 
         | 'messages' 
         | 'untrimmed'
@@ -160,24 +159,11 @@ export type FormCheckerError = (
 );
 
 /**
- * Infer output data type
- */
-export type FormCheckerInferResultType<
-    Fields extends string, 
-    Schema extends FormCheckerSchema<Fields>,
-    Data extends FormCheckerData<Schema>
-> = {
-    [K in keyof Schema]: Schema[K] extends FormCheckerRules<Fields, Data[K], infer Output>
-        ? Output | null
-        : never;
-};
-
-/**
  * Result of data validation and transformation
  */
-export type FormCheckerResult<Fields extends string, Schema extends FormCheckerSchema<Fields>, Data extends FormCheckerData<Schema>> = {
+export type FormCheckerResult<Data extends FormCheckerData> = {
     isValid: boolean;
-    messages: Partial<Record<Fields, string>>;
-    errors: Partial<Record<Fields, FormCheckerError>>;   
-    result: FormCheckerInferResultType<Fields, Schema, Data>;
+    messages: Partial<Record<FormCheckerFields<Data>, string>>;
+    errors: Partial<Record<FormCheckerFields<Data>, FormCheckerError>>;   
+    result: Data;
 }
