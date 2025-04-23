@@ -1,15 +1,20 @@
 import { formChecker, type FormCheckerSchema } from 'form-checker-ts';
 
-type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
+type Data = {
+    name: string;
+    email: string;
+    password: string;
+    password_confirm: string;
+};
 
-const schema : FormCheckerSchema<FormFields> = {
+const schema : FormCheckerSchema<Data> = {
     name: { required: true, minLength: 3, maxLength: 30 },
     email: { required: true, minLength: 5, maxLength: 50 },
     password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
-    password_confirm: { required: true, equal: 'password' }
+    password_confirm: { required: { ifFilled: 'password' }, equal: 'password' }
 };
 
-const data : Record<FormFields, string> = {
+const data : Data = {
     name: 'Guilherme',
     email: 'contato@gn.dev.br',
     password: 'Q1w2E3r4',
@@ -18,7 +23,7 @@ const data : Record<FormFields, string> = {
 
 console.log(' ----- FormChecker Example Start ----- ');
 
-formChecker(schema, data).then(result => {
+formChecker(schema, data, 'pt').then(result => {
     console.log(result);
 });
 

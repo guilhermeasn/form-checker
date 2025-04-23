@@ -6,44 +6,16 @@
 
 A TypeScript library for flexible and customizable form validation with support for synchronous and asynchronous rules.
 
-## Features
-
-- Define validation rules for each form field.
-- Supports built-in validation rules such as `required`, `min`, `max`, `minLength`, `maxLength`, `equal`, and `regexp`.
-- Supports custom asynchronous validation custom rules (`test`).
-- Handles data transformation before validation (`transform`).
-- Returns detailed validation results including errors and custom messages.
-
 ## Installation
 
 ```bash
 npm install form-checker-ts
 ```
 
-## Example Usage
+Or
 
-```ts
-import { formChecker, type FormCheckerSchema } from 'form-checker-ts';
-
-type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
-
-const schema : FormCheckerSchema<FormFields> = {
-    name: { required: true, minLength: 3, maxLength: 30 },
-    email: { required: true, minLength: 5, maxLength: 50 },
-    password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
-    password_confirm: { required: true, equal: 'password' }
-};
-
-const data : Record<FormFields, string> = {
-    name: 'Guilherme',
-    email: 'contato@gn.dev.br',
-    password: 'Q1w2E3r4',
-    password_confirm: 'Q1w2E3r4'
-};
-
-formChecker(schema, data).then(result => {
-    console.log(result);
-});
+```bash
+yarn add form-checker-ts
 ```
 
 ## Author

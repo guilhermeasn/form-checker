@@ -1184,10 +1184,10 @@ find-up@^4.0.0, find-up@^4.1.0:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
 
-form-checker-ts@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/form-checker-ts/-/form-checker-ts-0.1.1.tgz#4ef4980851f53b5b0559558caf30d2fc97389270"
-  integrity sha512-UEFwD1ZQ4UrGxoBIjOPzbauX6GIhee+l3jQgjN+UE2ZZip0rwXucBfPGXmRS5kVUz8Al4/uTY0GDEZ9HtJI3nA==
+form-checker-ts@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/form-checker-ts/-/form-checker-ts-2.0.1.tgz#18b47c1ca0f5ea707d91aabbf60ae6015a6a9408"
+  integrity sha512-i+ciWqNyhqA9VlN5eJYbhiGIh6kt6MADL/0JS4OazgwONL72YQTukf+MwV4gHc8VR0Jgm9t3CTbNGcuMEYWJTg==
 
 fs.realpath@^1.0.0:
   version "1.0.0"
