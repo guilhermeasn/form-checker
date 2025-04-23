@@ -1,4 +1,13 @@
-export type FormCheckerLanguages = 'pt' | 'en' | 'es' | 'fr' | 'de' |'it' | 'zh' | 'ja';
+export type FormCheckerLanguages = (
+    | 'en' // English
+    | 'pt' // Português
+    | 'es' // Español
+    | 'fr' // Français
+    | 'de' // Deutsch
+    | 'it' // Italiano
+    | 'zh' // 中文 (Chinese)
+    | 'ja' // 日本語 (Japanese)
+);
 
 export type FormCheckerType = string | number | boolean | null | undefined;
 export type FormCheckerData = Record<string, FormCheckerType>;
