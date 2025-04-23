@@ -123,7 +123,7 @@ describe('singup form with form-checker', () => {
             password_confirm: 'Q1w2E3r4'
         };
 
-        formChecker(schema, data).then(result => {
+        formChecker(schema, data, 'pt').then(result => {
             expect(result.isValid).toBe(true);
         });
 
