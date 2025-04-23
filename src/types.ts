@@ -1,7 +1,19 @@
-export type FormCheckerRules<Fields extends string> = {
+export type FormCheckerLanguages = 'pt' | 'en' | 'es' | 'fr' | 'de' |'it' | 'zh' | 'ja';
 
-    required : boolean;
-    defaultIfEmpty ?: any;
+export type FormCheckerType = string | number | boolean | null | undefined;
+export type FormCheckerData = Record<string, FormCheckerType>;
+
+export type FormCheckerRules<
+    Fields extends string,
+    Input extends FormCheckerType,
+    Output extends FormCheckerType = Input,
+> = {
+
+    required : (
+        | boolean
+        | { default: Output }
+        | { defaultCallback: (value : Output) => (Promise<Output> | Output) }
+    );
 
     min ?: number;
     max ?: number;
@@ -11,23 +23,38 @@ export type FormCheckerRules<Fields extends string> = {
 
     equal ?: Fields;
     
-    test ?: (value : any) => (Promise<boolean> | boolean);
-
     regexp ?: RegExp | RegExp[];
-    
-    transform ?: (value : any) => (Promise<any> | any);
 
-    messages ?: Partial<Record<keyof FormCheckerRules<Fields>, string>>;
+    untrimmed ?: boolean;
+    
+    checked ?: boolean;
+
+    test ?: (
+        | ((value : Input) => Promise<boolean> | boolean)
+        | Array<(value : Input) => Promise<boolean> | boolean>
+    );
+    
+    transform ?: (value : Input) => Promise<Output> | Output;
+
+    messages ?: Partial<Record<FormCheckerError, string>>;
 
 }
 
-export type FormCheckerError = keyof Omit<FormCheckerRules<any>, 'transform' | 'messages' | 'defaultIfEmpty'>;
-
-export type FormCheckerSchema<Fields extends string> = Record<Fields, FormCheckerRules<Fields>>;
-
-export type FormCheckerResult<Fields extends string> = {
-    isValid: boolean;
-    mensages: Partial<Record<Fields, string>>;
-    errors: Partial<Record<Fields, FormCheckerError>>;
-    result: Partial<Record<Fields, any>>;
+export type InferResultType<Schema extends FormCheckerSchema<any>> = {
+    [K in keyof Schema]: Schema[K] extends FormCheckerRules<any, any, infer Output>
+        ? Output
+        : never;
 };
+
+export type FormCheckerError = keyof Omit<FormCheckerRules<any, any>, 'transform' | 'messages' | 'untrimmed'>;
+
+export type FormCheckerSchema<Data extends FormCheckerData> = {
+    [k in keyof Data]: FormCheckerRules<keyof Data & string, Data[k]>
+}
+
+export type FormCheckerResult<Data extends FormCheckerData, Schema extends FormCheckerSchema<Data>> = {
+    isValid: boolean;
+    messages: Partial<Record<keyof Data, string>>;
+    errors: Partial<Record<keyof Data, FormCheckerError>>;   
+    result: InferResultType<Schema>;
+}
