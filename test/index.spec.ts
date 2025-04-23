@@ -2,7 +2,7 @@ import { formChecker, type FormCheckerSchema } from '../src/';
 
 describe('formChecker', () => {
 
-    const schema : FormCheckerSchema = {
+    const schema : FormCheckerSchema<'email' | 'password' | 'confirmPassword'> = {
         email: {
             required: true,
             regexp: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
@@ -30,7 +30,7 @@ describe('formChecker', () => {
     };
 
     test('valid data should pass validation', async () => {
-            const data = {
+        const data = {
             email: 'test@example.com',
             password: 'password123',
             confirmPassword: 'password123',
@@ -69,7 +69,7 @@ describe('formChecker', () => {
     });
 
     test('equal validation should fail if confirmPassword does not match password', async () => {
-            const data = {
+        const data = {
             email: 'test@example.com',
             password: 'password123',
             confirmPassword: 'wrongpassword',
@@ -82,7 +82,7 @@ describe('formChecker', () => {
     });
 
     test('regexp validation should fail if email is invalid', async () => {
-            const data = {
+        const data = {
             email: 'invalidemail',
             password: 'password123',
             confirmPassword: 'password123',
@@ -98,7 +98,7 @@ describe('formChecker', () => {
 
         type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
 
-        const schema : FormCheckerSchema = {
+        const schema : FormCheckerSchema<'name' | 'email' | 'password' | 'password_confirm'> = {
             name: { required: true, minLength: 3, maxLength: 30 },
             email: { required: true, minLength: 5, maxLength: 50 },
             password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },

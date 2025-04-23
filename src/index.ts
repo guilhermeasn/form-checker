@@ -1,3 +1,5 @@
+// REVISAR
+
 import type {
     FormCheckerData,
     FormCheckerError,
@@ -11,74 +13,82 @@ import type {
 
 import { defaultMessages } from "./errors";
 
-export async function formChecker<Data extends FormCheckerData, Schema extends FormCheckerSchema>(
-    schema : FormCheckerSchema,
+export async function formChecker<Fields extends string, Data extends FormCheckerData<Fields>, Schema extends FormCheckerSchema<Fields>>(
+    schema : FormCheckerSchema<Fields>,
     data : Data,
-    language : FormCheckerLanguages = 'en'
-) : Promise<FormCheckerResult<Data, Schema>> {
+    language : FormCheckerLanguages | Record<FormCheckerError, string> = 'en'
+) : Promise<FormCheckerResult<Fields, Data, Schema>> {
 
     const isEmpty = (value: FormCheckerType) : boolean => value === undefined || value === null || value.toString().trim() === '';
     const isInvalidNumber = (value: string) : boolean => isNaN(parseFloat(value));
 
-    const result : Data = {...data};
+    const getDefaultMessages = (error : FormCheckerError) : string => {
+        if(typeof language === 'string') return defaultMessages[language][error];
+        return language[error];
+    }
+
+    const result = {} as InferResultType<Fields, Schema>;
     const errors : Partial<Partial<Record<keyof Data, FormCheckerError>>> = {};
     const messages: Partial<Record<keyof Data, string>> = {};
 
     loop: for(let field in schema) {
 
         const rules = schema[field];
+        let value = data[field];
 
-        if(typeof result[field] === 'string' && !rules.untrimmed) {
-            (result as Record<string, any>)[field] = result[field].trim();
+        if(typeof value === 'string' && !rules.untrimmed) {
+            value = value.trim() as Data[Extract<Fields, string>];
         }
 
         const onError = (error : FormCheckerError) : true => {
-            errors[field as keyof Data] = error;
-            messages[field as keyof Data] = rules.messages?.[error] ?? defaultMessages[language][error];
+            errors[field] = error;
+            messages[field] = rules.messages?.[error] ?? getDefaultMessages(error);
             return true;
         }
 
-        if(rules.required && isEmpty(result[field])) {
+        if(rules.required && isEmpty(value)) {
 
-            if(typeof rules.required === 'object') {
-                result[field as keyof Data] = ('default' in rules.required
+            if(typeof rules.required === 'object') (result as any)[field] = (
+                'default' in rules.required
                     ? rules.required.default
-                    : await rules.required.defaultCallback(result[field])) as Data[keyof Data];
-            } else {
-                onError('required');
-                continue loop;
-            }
+                    : await rules.required.defaultCallback(value)
+                );
+
+            else onError('required');
+
+            continue loop;
 
         }
         
-        if(rules.checked && !result[field] && onError('checked')) continue loop;
-        if(rules.equal && data[rules.equal] !== result[field] && onError('equal')) continue loop;
+        if(rules.checked && !value && onError('checked')) continue loop;
+        if(rules.equal && data[rules.equal] !== value && onError('equal')) continue loop;
 
-        if(typeof result[field] === 'string' || typeof result[field] === 'number') {
+        if(typeof value === 'string' || typeof value === 'number') {
 
-            const value = result[field].toString().trim();
+            const valueString = value.toString().trim();
 
-            if(rules.min && (isInvalidNumber(value) || parseFloat(value) < rules.min) && onError('min')) continue loop;
-            if(rules.max && (isInvalidNumber(value) || parseFloat(value) > rules.max) && onError('max')) continue loop;
-            if(rules.minLength && value.length < rules.minLength && onError('minLength')) continue loop;
-            if(rules.maxLength && value.length > rules.maxLength && onError('maxLength')) continue loop;
+            if(rules.min && (isInvalidNumber(valueString) || parseFloat(valueString) < rules.min) && onError('min')) continue loop;
+            if(rules.max && (isInvalidNumber(valueString) || parseFloat(valueString) > rules.max) && onError('max')) continue loop;
+            if(rules.minLength && valueString.length < rules.minLength && onError('minLength')) continue loop;
+            if(rules.maxLength && valueString.length > rules.maxLength && onError('maxLength')) continue loop;
 
             const regs : RegExp[] = Array.isArray(rules.regexp) ? rules.regexp : (rules.regexp ? [rules.regexp] : []);
-            for(let r of regs) if(!r.test(value) && onError('regexp')) continue loop;
+            for(let r of regs) if(!r.test(valueString) && onError('regexp')) continue loop;
 
         }
         
         const tests = Array.isArray(rules.test) ? rules.test : (rules.test ? [rules.test] : []);
-        for(let t of tests) if(!(await t(result[field])) && onError('test')) continue loop;
+        for(let t of tests) if(!(await t(value)) && onError('test')) continue loop;
 
-        if(rules.transform) result[field as keyof Data] = await rules.transform(result[field]) as Data[keyof Data];
+        if(rules.transform) value = await rules.transform(value) as Data[Extract<Fields, string>];
+
+        (result as any)[field] = value;
 
     }
 
     return {
         isValid: Object.keys(errors).length === 0,
-        messages, errors, 
-        result: result as unknown as InferResultType<Schema>
+        messages, errors, result
     }
 
 }

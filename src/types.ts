@@ -10,7 +10,7 @@ export type FormCheckerLanguages = (
 );
 
 export type FormCheckerType = string | number | boolean | null | undefined;
-export type FormCheckerData = Record<string, FormCheckerType>;
+export type FormCheckerData<Fields extends string> = Record<Fields, FormCheckerType>;
 
 export type FormCheckerRules<
     Fields extends string,
@@ -49,21 +49,19 @@ export type FormCheckerRules<
 
 }
 
-export type InferResultType<Schema extends FormCheckerSchema> = {
-    [K in keyof Schema]: Schema[K] extends FormCheckerRules<any, any, infer Output>
+export type InferResultType<Fields extends string, Schema extends FormCheckerSchema<Fields>> = {
+    [K in keyof Schema]: Schema[K] extends FormCheckerRules<Fields, any, infer Output>
         ? Output
         : never;
 };
 
 export type FormCheckerError = keyof Omit<FormCheckerRules<any, any>, 'transform' | 'messages' | 'untrimmed'>;
 
-export type FormCheckerSchema = {
-    [K in string]: FormCheckerRules<K>;
-}
+export type FormCheckerSchema<Fields extends string> = Record<Fields, FormCheckerRules<Fields>>;
 
-export type FormCheckerResult<Data extends FormCheckerData, Schema extends FormCheckerSchema> = {
+export type FormCheckerResult<Fields extends string, Data extends FormCheckerData<Fields>, Schema extends FormCheckerSchema<Fields>> = {
     isValid: boolean;
     messages: Partial<Record<keyof Data, string>>;
     errors: Partial<Record<keyof Data, FormCheckerError>>;   
-    result: InferResultType<Schema>;
+    result: InferResultType<Fields, Schema>;
 }
