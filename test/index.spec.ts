@@ -2,7 +2,7 @@ import { formChecker, type FormCheckerSchema } from '../src/';
 
 describe('formChecker', () => {
 
-    const schema: FormCheckerSchema<'email' | 'password' | 'confirmPassword'> = {
+    const schema : FormCheckerSchema = {
         email: {
             required: true,
             regexp: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
@@ -39,7 +39,7 @@ describe('formChecker', () => {
         const result = await formChecker(schema, data);
         expect(result.isValid).toBe(true);
         expect(result.errors).toEqual({});
-        expect(result.mensages).toEqual({});
+        expect(result.messages).toEqual({});
     });
 
     test('required field should fail validation if missing', async () => {
@@ -52,7 +52,7 @@ describe('formChecker', () => {
         const result = await formChecker(schema, data);
         expect(result.isValid).toBe(false);
         expect(result.errors.email).toBe('required');
-        expect(result.mensages.email).toBe('Email is required');
+        expect(result.messages.email).toBe('Email is required');
     });
 
     test('minLength validation should fail if password is too short', async () => {
@@ -65,7 +65,7 @@ describe('formChecker', () => {
         const result = await formChecker(schema, data);
         expect(result.isValid).toBe(false);
         expect(result.errors.password).toBe('minLength');
-        expect(result.mensages.password).toBe('Password must be at least 6 characters');
+        expect(result.messages.password).toBe('Password must be at least 6 characters');
     });
 
     test('equal validation should fail if confirmPassword does not match password', async () => {
@@ -78,7 +78,7 @@ describe('formChecker', () => {
         const result = await formChecker(schema, data);
         expect(result.isValid).toBe(false);
         expect(result.errors.confirmPassword).toBe('equal');
-        expect(result.mensages.confirmPassword).toBe('Confirm Password must match Password');
+        expect(result.messages.confirmPassword).toBe('Confirm Password must match Password');
     });
 
     test('regexp validation should fail if email is invalid', async () => {
@@ -91,14 +91,14 @@ describe('formChecker', () => {
         const result = await formChecker(schema, data);
         expect(result.isValid).toBe(false);
         expect(result.errors.email).toBe('regexp');
-        expect(result.mensages.email).toBe('Email is invalid');
+        expect(result.messages.email).toBe('Email is invalid');
     });
 
     test('test readme example', () => {
 
         type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
 
-        const schema : FormCheckerSchema<FormFields> = {
+        const schema : FormCheckerSchema = {
             name: { required: true, minLength: 3, maxLength: 30 },
             email: { required: true, minLength: 5, maxLength: 50 },
             password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
@@ -119,3 +119,5 @@ describe('formChecker', () => {
     })
 
 });
+
+// more tests ...

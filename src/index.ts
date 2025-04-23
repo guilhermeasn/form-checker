@@ -11,8 +11,8 @@ import type {
 
 import { defaultMessages } from "./errors";
 
-export async function formChecker<Data extends FormCheckerData, Schema extends FormCheckerSchema<Data>>(
-    schema : FormCheckerSchema<Data>,
+export async function formChecker<Data extends FormCheckerData, Schema extends FormCheckerSchema>(
+    schema : FormCheckerSchema,
     data : Data,
     language : FormCheckerLanguages = 'en'
 ) : Promise<FormCheckerResult<Data, Schema>> {
@@ -29,21 +29,21 @@ export async function formChecker<Data extends FormCheckerData, Schema extends F
         const rules = schema[field];
 
         if(typeof result[field] === 'string' && !rules.untrimmed) {
-            result[field] = result[field].trim() as Data[Extract<keyof Data, string>];
+            (result as Record<string, any>)[field] = result[field].trim();
         }
 
         const onError = (error : FormCheckerError) : true => {
-            errors[field] = error;
-            messages[field] = rules.messages?.[error] ?? defaultMessages[language][error];
+            errors[field as keyof Data] = error;
+            messages[field as keyof Data] = rules.messages?.[error] ?? defaultMessages[language][error];
             return true;
         }
 
         if(rules.required && isEmpty(result[field])) {
 
             if(typeof rules.required === 'object') {
-                result[field] = 'default' in rules.required
+                result[field as keyof Data] = ('default' in rules.required
                     ? rules.required.default
-                    : await rules.required.defaultCallback(result[field]);
+                    : await rules.required.defaultCallback(result[field])) as Data[keyof Data];
             } else {
                 onError('required');
                 continue loop;
@@ -71,7 +71,7 @@ export async function formChecker<Data extends FormCheckerData, Schema extends F
         const tests = Array.isArray(rules.test) ? rules.test : (rules.test ? [rules.test] : []);
         for(let t of tests) if(!(await t(result[field])) && onError('test')) continue loop;
 
-        if(rules.transform) result[field] = await rules.transform(result[field]);
+        if(rules.transform) result[field as keyof Data] = await rules.transform(result[field]) as Data[keyof Data];
 
     }
 

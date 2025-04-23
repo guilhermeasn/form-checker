@@ -14,7 +14,7 @@ export type FormCheckerData = Record<string, FormCheckerType>;
 
 export type FormCheckerRules<
     Fields extends string,
-    Input extends FormCheckerType,
+    Input extends FormCheckerType = FormCheckerType,
     Output extends FormCheckerType = Input,
 > = {
 
@@ -49,7 +49,7 @@ export type FormCheckerRules<
 
 }
 
-export type InferResultType<Schema extends FormCheckerSchema<any>> = {
+export type InferResultType<Schema extends FormCheckerSchema> = {
     [K in keyof Schema]: Schema[K] extends FormCheckerRules<any, any, infer Output>
         ? Output
         : never;
@@ -57,11 +57,11 @@ export type InferResultType<Schema extends FormCheckerSchema<any>> = {
 
 export type FormCheckerError = keyof Omit<FormCheckerRules<any, any>, 'transform' | 'messages' | 'untrimmed'>;
 
-export type FormCheckerSchema<Data extends FormCheckerData> = {
-    [k in keyof Data]: FormCheckerRules<keyof Data & string, Data[k]>
+export type FormCheckerSchema = {
+    [K in string]: FormCheckerRules<K>;
 }
 
-export type FormCheckerResult<Data extends FormCheckerData, Schema extends FormCheckerSchema<Data>> = {
+export type FormCheckerResult<Data extends FormCheckerData, Schema extends FormCheckerSchema> = {
     isValid: boolean;
     messages: Partial<Record<keyof Data, string>>;
     errors: Partial<Record<keyof Data, FormCheckerError>>;   
