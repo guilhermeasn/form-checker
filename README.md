@@ -47,7 +47,7 @@ const schema : FormCheckerSchema<Data> = {
     name: { required: true, minLength: 3, maxLength: 30 },
     email: { required: true, minLength: 5, maxLength: 50 },
     password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
-    password_confirm: { required: true, equal: 'password' }
+    password_confirm: { required: { ifFilled: 'password' }, equal: 'password' }
 };
 
 const data : Data = {
