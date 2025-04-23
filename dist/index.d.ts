@@ -1,4 +1,4 @@
-import { FormCheckerResult, FormCheckerRules, FormCheckerSchema } from "./types";
-export declare function formChecker<Fields extends string>(schema: FormCheckerSchema<Fields>, data: Record<Fields, any>): Promise<FormCheckerResult<Fields>>;
-export type { FormCheckerResult, FormCheckerRules, FormCheckerSchema };
+import type { FormCheckerData, FormCheckerDefaultMessages, FormCheckerError, FormCheckerLanguages, FormCheckerResult, FormCheckerRules, FormCheckerSchema, FormCheckerValue } from "./types";
+export declare function formChecker<Data extends FormCheckerData, Schema extends FormCheckerSchema<Data>>(schema: Schema, data: Data, language?: FormCheckerDefaultMessages | FormCheckerLanguages): Promise<FormCheckerResult<Data>>;
+export type { FormCheckerData, FormCheckerDefaultMessages, FormCheckerError, FormCheckerLanguages, FormCheckerResult, FormCheckerRules, FormCheckerSchema, FormCheckerValue };
 export default formChecker;

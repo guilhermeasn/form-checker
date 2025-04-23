@@ -5,6 +5,7 @@
     "types": "index.d.ts",
     "scripts": {
         "test": "jest",
+        "minify": "minify-all-js .\\dist\\ -m",
         "build:sh": "sh ./bin/build.sh",
         "build:ps": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./bin/build.ps1",
         "publish:sh": "sh ./bin/publish.sh",
@@ -21,7 +22,7 @@
     },
     "homepage": "https://github.com/guilhermeasn/form-checker#readme",
     "description": "The FormChecker (form-checker-ts) is a TypeScript/JavaSctipt form validation library that supports custom validation rules like required fields, length checks, pattern matching, and custom functions. It provides asynchronous validation and flexible error handling for robust form processing.",
-    "keywords":[
+    "keywords": [
         "Form",
         "Validation",
         "Form Checker",
@@ -41,5 +42,8 @@
         "jest": "^29.7.0",
         "ts-jest": "^29.3.2",
         "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "minify-all-js": "^0.1.9"
     }
 }

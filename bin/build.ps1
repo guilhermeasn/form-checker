@@ -3,6 +3,7 @@ if(test-path ./dist) {
 }
 
 yarn tsc --project tsconfig.json
+yarn minify
 
 Copy-Item ./package.json ./dist/package.json
 Copy-Item ./README.md ./dist/README.md
