@@ -26,7 +26,7 @@ export async function formChecker<
     const isInvalidNumber = (value: string) : boolean => isNaN(parseFloat(value));
     const isNotEqual = <T>(a: T, b: unknown): b is T => a !== b;
 
-    const getDefaultMessages = (error : FormCheckerError) : string => {
+    const getDefaultMessage = (error : FormCheckerError) : string => {
         if(typeof language === 'string') return defaultMessages[language][error];
         return language[error];
     }
@@ -47,7 +47,7 @@ export async function formChecker<
 
         const onError = (error : FormCheckerError) : true => {
             errors[field] = error;
-            messages[field] = rules.messages?.[error] ?? getDefaultMessages(error);
+            messages[field] = rules.messages?.[error] ?? getDefaultMessage(error);
             return true;
         }
 
