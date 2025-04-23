@@ -57,7 +57,7 @@ const data : Data = {
     password_confirm: 'Q1w2E3r4'
 };
 
-formChecker(schema, data).then(result => {
+formChecker(schema, data, 'pt').then(result => {
     console.log(result);
 });
 ```
