@@ -11,10 +11,11 @@ A TypeScript library for flexible and customizable form validation with support 
 ## Features
 
 - Define validation rules for each form field.
-- Supports built-in validation rules such as `required`, `min`, `max`, `minLength`, `maxLength`, `equal`, and `regexp`.
-- Supports custom asynchronous validation custom rules (`test`).
-- Handles data transformation before validation (`transform`).
-- Returns detailed validation results including errors and custom messages.
+- Supports built-in validation rules such as `required`, `checked`, `min`, `max`, `minLength`, `maxLength`, `equal`, and `regexp`.
+- Supports custom asynchronous validation rules (`test`).
+- Handles data transformation before and after validation (`onBefore`, `onAfter`).
+- Returns detailed validation results including errors and custom or default messages.
+- Contains standard validation error messages in several languages ​​such as: English, Portuguese, Spanish, Chinese, etc.
 
 ## Installation
 
@@ -35,16 +36,21 @@ yarn add form-checker-ts
 ```ts
 import { formChecker, type FormCheckerSchema } from 'form-checker-ts';
 
-type FormFields = 'name' | 'email' | 'password' | 'password_confirm';
+type Data = {
+    name: string;
+    email: string;
+    password: string;
+    password_confirm: string;
+};
 
-const schema : FormCheckerSchema<FormFields> = {
+const schema : FormCheckerSchema<Data> = {
     name: { required: true, minLength: 3, maxLength: 30 },
     email: { required: true, minLength: 5, maxLength: 50 },
     password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
     password_confirm: { required: true, equal: 'password' }
 };
 
-const data : Record<FormFields, string> = {
+const data : Data = {
     name: 'Guilherme',
     email: 'contato@gn.dev.br',
     password: 'Q1w2E3r4',
