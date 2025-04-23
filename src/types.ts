@@ -38,6 +38,9 @@ export type FormCheckerData = (
     Record<string, FormCheckerValue>
 );
 
+/**
+ * Get the form fields
+ */
 export type FormCheckerFields<Data extends FormCheckerData> = (
     Extract<keyof Data, string>
 );

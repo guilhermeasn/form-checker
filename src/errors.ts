@@ -3,8 +3,12 @@ import type {
     FormCheckerLanguages
 } from "./types";
 
+/**
+ * Internationalized validation error messages
+ */
 export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMessages> = {
 
+    // English    
     en: {
         required: 'This field is required.',
         min: 'The value is below the allowed minimum.',
@@ -17,6 +21,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'This field is required.',
     },
 
+    // Português
     pt: {
         required: 'O campo é obrigatório.',
         min: 'O valor é menor que o mínimo permitido.',
@@ -29,6 +34,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'Este campo é obrigatório.',
     },
 
+    // Español
     es: {
         required: 'Este campo es obligatorio.',
         min: 'El valor es menor que el mínimo permitido.',
@@ -41,6 +47,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'Este campo es obligatorio.',
     },
 
+    // Français
     fr: {
         required: 'Ce champ est obligatoire.',
         min: 'La valeur est inférieure au minimum autorisé.',
@@ -53,6 +60,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'Ce champ est obligatoire.',
     },
 
+    // Deutsch
     de: {
         required: 'Dieses Feld ist erforderlich.',
         min: 'Der Wert liegt unter dem erlaubten Minimum.',
@@ -65,6 +73,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'Dieses Feld ist erforderlich.',
     },
 
+    // Italiano
     it: {
         required: 'Questo campo è obbligatorio.',
         min: 'Il valore è inferiore al minimo consentito.',
@@ -77,6 +86,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: 'Questo campo è obbligatorio.',
     },
 
+    // 中文 (Chinese)
     zh: {
         required: '该字段为必填项。',
         min: '值低于允许的最小值。',
@@ -89,6 +99,7 @@ export const defaultMessages: Record<FormCheckerLanguages, FormCheckerDefaultMes
         checked: '该字段为必填项。',
     },
 
+    // 日本語 (Japanese)
     ja: {
         required: 'この項目は必須です。',
         min: '値が許容される最小値を下回っています。',

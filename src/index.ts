@@ -11,6 +11,9 @@ import type {
 
 import { defaultMessages } from "./errors";
 
+/**
+ * Form data validator
+ */
 export async function formChecker<
     Data extends FormCheckerData,
     Schema extends FormCheckerSchema<Data>
