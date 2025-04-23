@@ -31,7 +31,7 @@ export async function formChecker<
         return language[error];
     }
 
-    const result = {} as FormCheckerInferResultType<Fields, Schema, Data>;
+    const result : Partial<Record<keyof Schema, unknown>> = {};
     const errors : Partial<Record<keyof Schema, FormCheckerError>> = {};
     const messages: Partial<Record<keyof Schema, string>> = {};
 
@@ -56,11 +56,9 @@ export async function formChecker<
 
             if(typeof rules.required === 'object') {
 
-                result[field] = (
-                    typeof rules.required.default === 'function'
-                        ? await rules.required.default()
-                        : rules.required.default
-                ) as FormCheckerInferResultType<Fields, Schema, Data>[typeof field];
+                result[field] = typeof rules.required.default === 'function'
+                    ? await rules.required.default()
+                    : rules.required.default;
 
             } else onError('required');
 
@@ -111,15 +109,15 @@ export async function formChecker<
             for(let f of funcs) value = await f(value) as Data[Extract<Fields, string>];
         }
 
-        if(rules.output) value = await rules.output(value) as Data[Extract<Fields, string>];
-
-        (result as any)[field] = value;
+        // output
+        result[field] = rules.output ? await rules.output(value) : value;
 
     }
 
     return {
         isValid: Object.keys(errors).length === 0,
-        messages, errors, result
+        messages, errors,
+        result: result as FormCheckerInferResultType<Fields, Schema, Data>
     }
 
 }
