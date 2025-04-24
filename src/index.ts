@@ -4,6 +4,7 @@ import type {
     FormCheckerError,
     FormCheckerLanguages,
     FormCheckerResult,
+    FormCheckerRuleRequired,
     FormCheckerRules,
     FormCheckerSchema,
     FormCheckerValue
@@ -69,7 +70,7 @@ export async function formChecker<
                             ? await rules.required.default()
                             : rules.required.default
                     ) as Data[Extract<keyof Schema, string>];
-                    
+
                     continue loop;
 
                 } else {
@@ -162,6 +163,7 @@ export type {
     FormCheckerError,
     FormCheckerLanguages,
     FormCheckerResult,
+    FormCheckerRuleRequired,
     FormCheckerRules,
     FormCheckerSchema,
     FormCheckerValue
