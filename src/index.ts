@@ -9,7 +9,13 @@ import type {
     FormCheckerValue
 } from "./types";
 
-import { defaultMessages } from "./errors";
+import {
+    getDefaultMessage,
+    isEmpty,
+    isInvalidNumber,
+    isNotEqual,
+    normalizeArray
+} from "./helpers";
 
 /**
  * Form data validator
@@ -18,19 +24,10 @@ export async function formChecker<
     Data extends FormCheckerData,
     Schema extends FormCheckerSchema<Data>
 >(
-    schema :Schema,
-    data : Data,
-    language : FormCheckerDefaultMessages | FormCheckerLanguages = 'en'
+    schema: Schema,
+    data: Data,
+    language: FormCheckerDefaultMessages | FormCheckerLanguages = 'en'
 ) : Promise<FormCheckerResult<Data>> {
-
-    const isEmpty = (value: FormCheckerValue) : boolean => value === undefined || value === null || value.toString().trim() === '';
-    const isInvalidNumber = (value: string) : boolean => isNaN(parseFloat(value));
-    const isNotEqual = <T>(a: T, b: unknown): b is T => a !== b;
-
-    const getDefaultMessage = (error : FormCheckerError) : string => {
-        if(typeof language === 'string') return defaultMessages[language][error];
-        return language[error];
-    }
 
     const result : Data = {...data};
     const errors : Partial<Record<keyof Schema, FormCheckerError>> = {};
@@ -53,7 +50,7 @@ export async function formChecker<
             messages[field] = (
                 customMessage ??
                 rules.messages?.[error] ??
-                getDefaultMessage(error)
+                getDefaultMessage(error, language)
             );
 
             return true;
@@ -66,10 +63,15 @@ export async function formChecker<
             if(typeof rules.required === 'object') {
 
                 if('default' in rules.required) {
-                    result[field] = (typeof rules.required.default === 'function'
-                        ? await rules.required.default()
-                        : rules.required.default) as Data[Extract<keyof Schema, string>];
+
+                    result[field] = (
+                        typeof rules.required.default === 'function'
+                            ? await rules.required.default()
+                            : rules.required.default
+                    ) as Data[Extract<keyof Schema, string>];
+                    
                     continue loop;
+
                 } else {
 
                     if(rules.required.ifFilled) {
@@ -102,10 +104,8 @@ export async function formChecker<
         }
 
         //onBefore
-        if(rules.onBefore) {
-            const funcs = Array.isArray(rules.onBefore) ? rules.onBefore : [ rules.onBefore ];
-            for(let f of funcs) value = await f(value) as Data[Extract<keyof Schema, string>];
-        }
+        const befores = normalizeArray(rules.onBefore);
+        for(let f of befores) value = await f(value) as Data[Extract<keyof Schema, string>];
         
         // checked
         if(rules.checked && !value && onError('checked')) continue loop;
@@ -125,30 +125,24 @@ export async function formChecker<
             if(rules.maxLength && valueString.length > rules.maxLength && onError('maxLength')) continue loop;
 
             // regexp
-            if(rules.regexp) {
-                const regs : RegExp[] = Array.isArray(rules.regexp) ? rules.regexp : [ rules.regexp ];
-                for(let r of regs) if(!r.test(valueString) && onError('regexp')) continue loop;
-            }
-
+            const regs : RegExp[] = normalizeArray(rules.regexp);
+            for(let r of regs) if(!r.test(valueString) && onError('regexp')) continue loop;
+            
         }
         
         // test
-        if(rules.test) {
-            const tests = Array.isArray(rules.test) ? rules.test : [ rules.test ];
-            for(let t of tests) {
-                const r = await t(value);
-                if(r !== true) {
-                    onError('test', typeof r === 'string' ? r : undefined);
-                    continue loop;
-                }
+        const tests = normalizeArray(rules.test);
+        for(let t of tests) {
+            const r = await t(value);
+            if(r !== true) {
+                onError('test', typeof r === 'string' ? r : undefined);
+                continue loop;
             }
         }
 
         //onAfter
-        if(rules.onAfter) {
-            const funcs = Array.isArray(rules.onAfter) ? rules.onAfter : [ rules.onAfter ];
-            for(let f of funcs) value = await f(value) as Data[Extract<keyof Schema, string>];
-        }
+        const afters = normalizeArray(rules.onAfter);
+        for(let f of afters) value = await f(value) as Data[Extract<keyof Schema, string>];
 
         // output
         result[field] = value;

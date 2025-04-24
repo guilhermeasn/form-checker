@@ -53,6 +53,20 @@ export type FormCheckerSchema<Data extends FormCheckerData> = {
 };
 
 /**
+ * Validates whether the field is mandatory.
+ * If it is blank, you can enter a default output value.
+ * Or you can make it mandatory whether other fields are filled in or not.
+ */
+export type FormCheckerRuleRequired<
+    Fields extends string,
+    Type extends FormCheckerValue
+> = (
+    | boolean
+    | { default: Type | (() => (Promise<Type> | Type)) }
+    | { ifFilled ?: Fields | Fields[], ifNotFilled ?: Fields | Fields[] }
+);
+
+/**
  * Validation rules for a form field
  */
 export type FormCheckerRules<
@@ -69,12 +83,9 @@ export type FormCheckerRules<
     /**
      * Validates whether the field is mandatory.
      * If it is blank, you can enter a default output value.
+     * Or you can make it mandatory whether other fields are filled in or not.
      */
-    required : (
-        | boolean
-        | { default: Type | (() => (Promise<Type> | Type)) }
-        | { ifFilled ?: Fields | Fields[], ifNotFilled ?: Fields | Fields[] }
-    );
+    required : FormCheckerRuleRequired<Fields, Type>;
 
     /**
      * Changes to data before validations
@@ -153,7 +164,6 @@ export type FormCheckerRules<
  */
 export type FormCheckerError = (
     keyof Omit<FormCheckerRules<string, FormCheckerValue>, (
-        | 'output' 
         | 'messages' 
         | 'untrimmed'
         | 'onBefore'
