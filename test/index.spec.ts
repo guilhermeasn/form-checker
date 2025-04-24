@@ -271,7 +271,7 @@ describe('asyncronous validations', () => {
         };
     
         const data = {
-          email: 'Test@Example.com'
+          email: 'Test@EXAMPLE.com'
         };
     
         const result = await formChecker(schema, data);
@@ -391,4 +391,50 @@ describe('form-checker required rule', () => {
         expect(result.isValid).toBe(true);
     });
 
+});
+
+describe('form-checker test error message', () => {
+
+    type Data = { field: string; }
+    const data : Data = { field: 'err' };
+
+    it('message error default', () => {
+
+        const schema : FormCheckerSchema<Data> = {
+            field: { required: true, test: () => false }
+        }
+
+        formChecker(schema, data).then(result => {
+            expect(result.isValid).toBe(false);
+            expect(result.messages.field).toBe('The value did not pass the validation.');
+        });
+
+    });
+
+    it('message error global custom', () => {
+
+        const schema : FormCheckerSchema<Data> = {
+            field: { required: true, test: () => false, messages: { test: 'invalid message out test' } }
+        }
+
+        formChecker(schema, data).then(result => {
+            expect(result.isValid).toBe(false);
+            expect(result.messages.field).toBe('invalid message out test');
+        });
+
+    });
+
+    it('message error built-in custom', () => {
+
+        const schema : FormCheckerSchema<Data> = {
+            field: { required: true, test: () => 'invalid field in test', messages: { test: 'invalid message out test' } }
+        }
+
+        formChecker(schema, data).then(result => {
+            expect(result.isValid).toBe(false);
+            expect(result.messages.field).toBe('invalid field in test');
+        });
+
+    });
+    
 });

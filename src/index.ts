@@ -46,10 +46,18 @@ export async function formChecker<
             value = value.trim() as Data[Extract<keyof Schema, string>];
         }
 
-        const onError = (error : FormCheckerError) : true => {
+        const onError = (error : FormCheckerError, customMessage ?: string) : true => {
+
             errors[field] = error;
-            messages[field] = rules.messages?.[error] ?? getDefaultMessage(error);
+
+            messages[field] = (
+                customMessage ??
+                rules.messages?.[error] ??
+                getDefaultMessage(error)
+            );
+
             return true;
+
         }
 
         // required
@@ -127,7 +135,13 @@ export async function formChecker<
         // test
         if(rules.test) {
             const tests = Array.isArray(rules.test) ? rules.test : [ rules.test ];
-            for(let t of tests) if(!(await t(value)) && onError('test')) continue loop;
+            for(let t of tests) {
+                const r = await t(value);
+                if(r !== true) {
+                    onError('test', typeof r === 'string' ? r : undefined);
+                    continue loop;
+                }
+            }
         }
 
         //onAfter

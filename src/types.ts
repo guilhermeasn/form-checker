@@ -125,12 +125,12 @@ export type FormCheckerRules<
     regexp ?: RegExp | RegExp[];
 
     /**
-     * Validates one or more synchronous and asynchronous
-     * custom tests
+     * Validates one or more custom tests, synchronous and asynchronous,
+     * and can return a boolean or a string with the validation error message
      */
     test ?: (
-        | ((value : Type) => Promise<boolean> | boolean)
-        | Array<(value : Type) => Promise<boolean> | boolean>
+        | ((value : Type) => Promise<boolean | string> | boolean | string)
+        | Array<(value : Type) => Promise<boolean | string> | boolean | string>
     );
 
     /**
