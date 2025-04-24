@@ -75,23 +75,19 @@ export async function formChecker<
 
                 } else {
 
-                    if(rules.required.ifFilled) {
-                        const fields = Array.isArray(rules.required.ifFilled) ? rules.required.ifFilled : [ rules.required.ifFilled ];
-                        for (const field of fields) {
-                            if (!isEmpty(data[field])) {
-                                onError('required');
-                                continue loop;
-                            }
+                    const filleds = normalizeArray(rules.required.ifFilled);
+                    for (const field of filleds) {
+                        if (!isEmpty(data[field])) {
+                            onError('required');
+                            continue loop;
                         }
                     }
 
-                    if(rules.required.ifNotFilled) {
-                        const fields = Array.isArray(rules.required.ifNotFilled) ? rules.required.ifNotFilled : [ rules.required.ifNotFilled ];
-                        for (const field of fields) {
-                            if(isEmpty(data[field])) {
-                                onError('required');
-                                continue loop;
-                            }
+                    const notFilleds = normalizeArray(rules.required.ifNotFilled);
+                    for (const field of notFilleds) {
+                        if(isEmpty(data[field])) {
+                            onError('required');
+                            continue loop;
                         }
                     }
 
