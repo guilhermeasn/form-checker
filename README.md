@@ -39,13 +39,20 @@ import { formChecker, type FormCheckerSchema } from 'form-checker-ts';
 type Data = {
     name: string;
     email: string;
+    age?: number | null;
     password: string;
     password_confirm: string;
 };
 
+async function emailIsAvailable(email : string) : boolean {
+    // implementation of the email evaluation function. May include asynchronous access to API
+    return true;
+}
+
 const schema : FormCheckerSchema<Data> = {
     name: { required: true, minLength: 3, maxLength: 30 },
-    email: { required: true, minLength: 5, maxLength: 50 },
+    email: { required: true, minLength: 5, maxLength: 50, test: emailIsAvailable },
+    age: { required: { default: null }, min: 3, max: 120 },
     password: { required: true, minLength: 6, maxLength: 20, regexp: [/[a-z]/, /[A-Z]/, /[0-9]/] },
     password_confirm: { required: { ifFilled: 'password' }, equal: 'password' }
 };
