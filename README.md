@@ -45,7 +45,8 @@ type Data = {
 };
 
 async function emailIsAvailable(email : string) : Promise<boolean> {
-    // implementation of the email evaluation function. May include asynchronous access to API
+    // implementation of the email evaluation function.
+    // May include asynchronous access to API
     return true;
 }
 
