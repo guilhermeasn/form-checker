@@ -44,7 +44,7 @@ type Data = {
     password_confirm: string;
 };
 
-async function emailIsAvailable(email : string) : boolean {
+async function emailIsAvailable(email : string) : Promise<boolean> {
     // implementation of the email evaluation function. May include asynchronous access to API
     return true;
 }
